@@ -451,12 +451,7 @@ header p {
 }
 
 .chart-center-label {
-  position: absolute;
-  top: 45%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-  pointer-events: none;
+  display: none;
 }
 
 .chart-center-label .center-amount {
@@ -1393,8 +1388,27 @@ function fmtDollar(n) {
 let fedChartInstance = null;
 let stateChartInstance = null;
 
-function createPieChart(canvasId, labels, data, colors) {
+function createPieChart(canvasId, labels, data, colors, centerText, centerSub) {
   const ctx = document.getElementById(canvasId).getContext('2d');
+  const centerPlugin = {
+    id: 'centerText',
+    afterDraw(chart) {
+      const {ctx: c, chartArea: {top, bottom, left, right}} = chart;
+      const cx = (left + right) / 2;
+      const cy = (top + bottom) / 2;
+      c.save();
+      c.textAlign = 'center';
+      c.textBaseline = 'middle';
+      c.font = "800 1.3rem 'Inter', sans-serif";
+      c.fillStyle = '#f1f5f9';
+      c.fillText(centerText || '', cx, cy - 8);
+      c.font = "500 0.65rem 'Inter', sans-serif";
+      c.fillStyle = 'rgba(255,255,255,0.5)';
+      c.letterSpacing = '0.08em';
+      c.fillText((centerSub || '').toUpperCase(), cx, cy + 14);
+      c.restore();
+    }
+  };
   return new Chart(ctx, {
     type: 'doughnut',
     data: {
@@ -1408,6 +1422,7 @@ function createPieChart(canvasId, labels, data, colors) {
         hoverOffset: 10
       }]
     },
+    plugins: [centerPlugin],
     options: {
       responsive: true,
       maintainAspectRatio: true,
@@ -1418,11 +1433,11 @@ function createPieChart(canvasId, labels, data, colors) {
           position: 'bottom',
           align: 'start',
           labels: {
-            padding: 10,
+            padding: 12,
             usePointStyle: true,
-            pointStyleWidth: 8,
+            pointStyleWidth: 10,
             color: '#f1f5f9',
-            font: { family: "'Inter', sans-serif", size: 10.5 },
+            font: { family: "'Inter', sans-serif", size: 11.5 },
             generateLabels(chart) {
               return chart.data.labels.map((label, i) => ({
                 text: label + ' · ' + fmtDollar(chart.data.datasets[0].data[i]),
@@ -1511,7 +1526,8 @@ function calculate() {
   fedChartInstance = createPieChart('fedChart',
     FEDERAL_SPENDING.map(s => s.name),
     FEDERAL_SPENDING.map(s => Math.round((s.pct/100)*fedTax*100)/100),
-    FEDERAL_SPENDING.map(s => s.color)
+    FEDERAL_SPENDING.map(s => s.color),
+    fmtDollar(fedTax), 'Federal'
   );
 
   // Federal receipt
@@ -1554,7 +1570,8 @@ function calculate() {
     stateChartInstance = createPieChart('stateChart',
       STATE_SPENDING_DEFAULT.map(s => s.name),
       STATE_SPENDING_DEFAULT.map(s => Math.round((s.pct/100)*stateTax*100)/100),
-      STATE_SPENDING_DEFAULT.map(s => s.color)
+      STATE_SPENDING_DEFAULT.map(s => s.color),
+      fmtDollar(stateTax), stateName
     );
 
     let stateHTML = '';
