@@ -417,10 +417,11 @@ header p {
 
 .chart-card {
   background: var(--card);
-  border: 1px solid var(--card-border);
+  border: 1px solid rgba(255,255,255,0.12);
   border-radius: var(--radius);
   padding: 32px;
   transition: all 0.3s ease;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.25);
 }
 
 .chart-card:hover {
@@ -452,11 +453,12 @@ header p {
 
 .chart-center-label {
   position: absolute;
-  top: 42%;
+  top: 45%;
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
   pointer-events: none;
+  width: 100%;
 }
 
 .chart-center-label .center-amount {
@@ -464,11 +466,12 @@ header p {
   font-weight: 800;
   color: var(--text);
   letter-spacing: -0.02em;
+  line-height: 1.2;
 }
 
 .chart-center-label .center-label {
   font-size: 0.7rem;
-  color: var(--text-muted);
+  color: rgba(255,255,255,0.5);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-weight: 500;
@@ -488,7 +491,7 @@ header p {
   padding: 0;
   position: relative;
   color: #2a2a2a;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.1);
   overflow: visible;
 }
 
@@ -644,12 +647,13 @@ header p {
 /* ═══ LOCAL PLACEHOLDER ═══ */
 .local-placeholder {
   background: var(--card);
-  border: 1px solid var(--card-border);
+  border: 1px solid rgba(255,255,255,0.12);
   border-radius: var(--radius);
   padding: 36px;
   text-align: center;
   margin-bottom: 56px;
   transition: all 0.3s;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.25);
 }
 
 .local-placeholder:hover {
@@ -746,11 +750,15 @@ footer a:hover {
   header h1 { font-size: 2rem; }
   .input-grid { grid-template-columns: 1fr; }
   .input-card { padding: 24px; }
-  .charts-grid, .receipt-grid { grid-template-columns: 1fr; }
-  .summary-bar { padding: 24px 16px; }
+  .charts-grid, .receipt-grid { grid-template-columns: 1fr; gap: 24px; }
+  .summary-bar { padding: 24px 16px; scroll-margin-top: 16px; margin-bottom: 28px; }
   .summary-item .value { font-size: 1.3rem; }
   .chart-card { padding: 24px; }
   .receipt-inner { padding: 24px 20px 28px; }
+  .charts-grid { margin-bottom: 28px; }
+  .receipt-grid { margin-bottom: 28px; }
+  .local-placeholder { margin-bottom: 40px; }
+  #results { padding-top: 16px; }
 }
 
 /* ═══ SCROLLBAR ═══ */
@@ -1416,12 +1424,14 @@ function createPieChart(canvasId, labels, data, colors) {
       plugins: {
         legend: {
           position: 'bottom',
+          maxWidth: window.innerWidth < 700 ? 999 : undefined,
           labels: {
-            padding: 10,
+            padding: window.innerWidth < 700 ? 10 : 10,
             usePointStyle: true,
-            pointStyleWidth: 8,
+            pointStyleWidth: window.innerWidth < 700 ? 12 : 8,
             color: '#8892a4',
-            font: { family: "'Inter', sans-serif", size: 10.5 },
+            font: { family: "'Inter', sans-serif", size: window.innerWidth < 700 ? 12 : 10.5 },
+            boxWidth: window.innerWidth < 700 ? 12 : 8,
             generateLabels(chart) {
               return chart.data.labels.map((label, i) => ({
                 text: label + ' · ' + fmtDollar(chart.data.datasets[0].data[i]),
@@ -1584,7 +1594,14 @@ function calculate() {
     });
   }, 50);
 
-  results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // Scroll to summary bar with offset so it's fully visible
+  setTimeout(() => {
+    const summaryBar = document.querySelector('.summary-bar');
+    if (summaryBar) {
+      const y = summaryBar.getBoundingClientRect().top + window.pageYOffset - 20;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+  }, 100);
 }
 </script>
 </body>
