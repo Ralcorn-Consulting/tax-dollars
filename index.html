@@ -1,0 +1,1591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Where Are My Tax Dollars Going?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0b0f1a;
+  --bg-subtle: #111827;
+  --card: rgba(255,255,255,0.04);
+  --card-border: rgba(255,255,255,0.08);
+  --card-hover: rgba(255,255,255,0.07);
+  --text: #f1f5f9;
+  --text-secondary: #8892a4;
+  --text-muted: #5a6478;
+  --accent: #6366f1;
+  --accent-light: #818cf8;
+  --accent-glow: rgba(99,102,241,0.3);
+  --emerald: #10b981;
+  --amber: #f59e0b;
+  --rose: #f43f5e;
+  --cyan: #06b6d4;
+  --shadow: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-lg: 0 20px 60px rgba(0,0,0,0.4);
+  --radius: 16px;
+  --glass: rgba(255,255,255,0.03);
+  --glass-border: rgba(255,255,255,0.06);
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* ═══ ANIMATED BACKGROUND ═══ */
+.bg-pattern {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.bg-pattern::before {
+  content: '';
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%);
+  top: -200px;
+  right: -100px;
+  animation: floatOrb 20s ease-in-out infinite;
+}
+
+.bg-pattern::after {
+  content: '';
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(6,182,212,0.08) 0%, transparent 70%);
+  bottom: -150px;
+  left: -100px;
+  animation: floatOrb 25s ease-in-out infinite reverse;
+}
+
+@keyframes floatOrb {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -40px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.95); }
+}
+
+/* Grid overlay */
+.bg-grid {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 40%, transparent 100%);
+}
+
+/* ═══ HEADER / HERO ═══ */
+header {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 72px 20px 48px;
+}
+
+.header-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(99,102,241,0.12);
+  border: 1px solid rgba(99,102,241,0.2);
+  color: var(--accent-light);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 6px 16px;
+  border-radius: 100px;
+  margin-bottom: 20px;
+  letter-spacing: 0.03em;
+  animation: fadeInDown 0.6s ease;
+}
+
+header h1 {
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-bottom: 16px;
+  animation: fadeInDown 0.7s ease;
+  background: linear-gradient(135deg, #fff 0%, #c7d2fe 50%, #818cf8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+header p {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  max-width: 520px;
+  margin: 0 auto;
+  font-weight: 300;
+  animation: fadeInDown 0.8s ease;
+}
+
+.tagline-highlight {
+  color: var(--accent-light);
+  font-weight: 500;
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ═══ INPUT CARD ═══ */
+.input-card {
+  position: relative;
+  z-index: 1;
+  background: var(--glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 36px;
+  max-width: 680px;
+  margin: 0 auto 56px;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+  animation: fadeInUp 0.7s ease;
+  transition: border-color 0.3s;
+}
+
+.input-card:hover {
+  border-color: rgba(255,255,255,0.12);
+}
+
+.input-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 21px;
+  background: linear-gradient(135deg, rgba(99,102,241,0.15), transparent 40%, transparent 60%, rgba(6,182,212,0.1));
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+
+.input-card:hover::before {
+  opacity: 1;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.input-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.input-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.input-group label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+
+.input-group select,
+.input-group input {
+  padding: 14px 16px;
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  font-size: 1rem;
+  font-family: inherit;
+  color: var(--text);
+  background: rgba(255,255,255,0.04);
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.input-group select option {
+  background: #1e293b;
+  color: #f1f5f9;
+}
+
+.input-group select:focus,
+.input-group input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow), 0 0 20px rgba(99,102,241,0.1);
+  background: rgba(99,102,241,0.04);
+}
+
+.input-group input::placeholder {
+  color: var(--text-muted);
+}
+
+.income-wrapper {
+  position: relative;
+}
+
+.income-wrapper .dollar-sign {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 1.1rem;
+  pointer-events: none;
+}
+
+.income-wrapper input {
+  padding-left: 34px;
+  font-weight: 600;
+  font-size: 1.15rem;
+  letter-spacing: 0.01em;
+}
+
+.btn-show {
+  display: block;
+  width: 100%;
+  padding: 16px 24px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  letter-spacing: 0.02em;
+}
+
+.btn-show::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #818cf8, #a78bfa);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.btn-show:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(99,102,241,0.4);
+}
+
+.btn-show:hover::before {
+  opacity: 1;
+}
+
+.btn-show:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.btn-show span {
+  position: relative;
+  z-index: 1;
+}
+
+.btn-show .btn-arrow {
+  display: inline-block;
+  transition: transform 0.3s;
+}
+
+.btn-show:hover .btn-arrow {
+  transform: translateX(4px);
+}
+
+.filing-note {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 14px;
+  font-weight: 300;
+}
+
+/* ═══ RESULTS ═══ */
+#results {
+  display: none;
+  position: relative;
+  z-index: 1;
+}
+
+/* ═══ SCROLL REVEAL ═══ */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal:nth-child(2) { transition-delay: 0.1s; }
+.reveal:nth-child(3) { transition-delay: 0.2s; }
+.reveal:nth-child(4) { transition-delay: 0.3s; }
+
+/* ═══ SUMMARY BAR ═══ */
+.summary-bar {
+  background: linear-gradient(135deg, rgba(99,102,241,0.15) 0%, rgba(6,182,212,0.1) 50%, rgba(16,185,129,0.1) 100%);
+  border: 1px solid rgba(99,102,241,0.15);
+  border-radius: var(--radius);
+  padding: 32px;
+  margin-bottom: 40px;
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.summary-item {
+  text-align: center;
+}
+
+.summary-item .label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.summary-item .icon {
+  font-size: 1rem;
+  margin-right: 2px;
+}
+
+.summary-item .value {
+  font-size: 1.7rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #fff, #c7d2fe);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Count-up animation placeholder class */
+.count-up {
+  display: inline-block;
+}
+
+/* ═══ CHARTS ═══ */
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  margin-bottom: 40px;
+}
+
+.chart-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 32px;
+  transition: all 0.3s ease;
+}
+
+.chart-card:hover {
+  background: var(--card-hover);
+  border-color: rgba(255,255,255,0.12);
+  transform: translateY(-2px);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.2);
+}
+
+.chart-card h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: var(--text);
+}
+
+.chart-card .chart-subtitle {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+  font-weight: 300;
+}
+
+.chart-wrapper {
+  position: relative;
+  max-width: 340px;
+  margin: 0 auto;
+}
+
+.chart-center-label {
+  position: absolute;
+  top: 42%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+}
+
+.chart-center-label .center-amount {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.chart-center-label .center-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 500;
+}
+
+/* ═══ RECEIPT ═══ */
+.receipt-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  margin-bottom: 40px;
+}
+
+.receipt-card {
+  background: #fefcf3;
+  border-radius: 4px;
+  padding: 0;
+  position: relative;
+  color: #2a2a2a;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+  overflow: visible;
+}
+
+/* Torn top edge */
+.receipt-card::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 0;
+  right: 0;
+  height: 16px;
+  background: linear-gradient(135deg, var(--bg) 33.33%, transparent 33.33%) 0 0,
+              linear-gradient(225deg, var(--bg) 33.33%, transparent 33.33%) 0 0;
+  background-size: 12px 16px;
+  background-repeat: repeat-x;
+  z-index: 2;
+}
+
+/* Torn bottom edge */
+.receipt-card::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  right: 0;
+  height: 16px;
+  background: linear-gradient(315deg, var(--bg) 33.33%, transparent 33.33%) 0 0,
+              linear-gradient(45deg, var(--bg) 33.33%, transparent 33.33%) 0 0;
+  background-size: 12px 16px;
+  background-repeat: repeat-x;
+  z-index: 2;
+}
+
+.receipt-inner {
+  padding: 32px 28px 36px;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 27px,
+      rgba(0,0,0,0.03) 27px,
+      rgba(0,0,0,0.03) 28px
+    );
+}
+
+.receipt-header {
+  text-align: center;
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+  border-bottom: 2px dashed #ccc;
+}
+
+.receipt-header h3 {
+  font-size: 1rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #1a1a1a;
+  margin-bottom: 2px;
+}
+
+.receipt-header .receipt-date {
+  font-size: 0.72rem;
+  color: #888;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+}
+
+.receipt-line {
+  display: flex;
+  justify-content: space-between;
+  padding: 7px 0;
+  font-size: 0.85rem;
+  border-bottom: 1px dotted #ddd;
+  transition: all 0.2s ease;
+  border-radius: 2px;
+  position: relative;
+}
+
+.receipt-line:hover {
+  background: rgba(99,102,241,0.06);
+  padding-left: 6px;
+  padding-right: 6px;
+  margin-left: -6px;
+  margin-right: -6px;
+}
+
+.receipt-line .pct-tag {
+  position: absolute;
+  right: -4px;
+  top: -10px;
+  background: #6366f1;
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: all 0.2s ease;
+  pointer-events: none;
+}
+
+.receipt-line:hover .pct-tag {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.receipt-line:last-of-type {
+  border-bottom: none;
+}
+
+.receipt-line .cat {
+  color: #555;
+  font-weight: 400;
+}
+
+.receipt-line .amt {
+  font-weight: 700;
+  color: #1a1a1a;
+  font-variant-numeric: tabular-nums;
+}
+
+.receipt-total {
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 0 0;
+  margin-top: 10px;
+  border-top: 2px dashed #333;
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: #1a1a1a;
+}
+
+.receipt-thankyou {
+  text-align: center;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px dashed #ccc;
+  font-size: 0.72rem;
+  color: #999;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.no-tax-note {
+  padding: 24px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* ═══ LOCAL PLACEHOLDER ═══ */
+.local-placeholder {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 36px;
+  text-align: center;
+  margin-bottom: 56px;
+  transition: all 0.3s;
+}
+
+.local-placeholder:hover {
+  border-color: rgba(255,255,255,0.12);
+}
+
+.local-placeholder h3 {
+  font-size: 1.15rem;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+.local-placeholder p {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 300;
+}
+
+.local-placeholder .coming-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(16,185,129,0.1);
+  border: 1px solid rgba(16,185,129,0.2);
+  color: var(--emerald);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: 100px;
+  margin-bottom: 14px;
+  letter-spacing: 0.04em;
+}
+
+/* ═══ FOOTER ═══ */
+footer {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 40px 20px 64px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.footer-cta {
+  margin-bottom: 24px;
+}
+
+.footer-cta p {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+.share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 22px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 100px;
+  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.share-btn:hover {
+  background: rgba(99,102,241,0.15);
+  border-color: rgba(99,102,241,0.3);
+  transform: translateY(-1px);
+}
+
+footer .fine-print {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.8;
+}
+
+footer a {
+  color: var(--accent-light);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+footer a:hover {
+  color: #a5b4fc;
+}
+
+/* ═══ MOBILE ═══ */
+@media (max-width: 700px) {
+  header { padding: 48px 20px 32px; }
+  header h1 { font-size: 2rem; }
+  .input-grid { grid-template-columns: 1fr; }
+  .input-card { padding: 24px; }
+  .charts-grid, .receipt-grid { grid-template-columns: 1fr; }
+  .summary-bar { padding: 24px 16px; }
+  .summary-item .value { font-size: 1.3rem; }
+  .chart-card { padding: 24px; }
+  .receipt-inner { padding: 24px 20px 28px; }
+}
+
+/* ═══ SCROLLBAR ═══ */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+</style>
+</head>
+<body>
+
+<div class="bg-pattern"></div>
+<div class="bg-grid"></div>
+
+<header>
+  <div class="header-badge">📊 2025 Tax Year · Updated Data</div>
+  <h1>Where Are My Tax<br>Dollars Going?</h1>
+  <p>See exactly how your federal and state income taxes are spent — <span class="tagline-highlight">down to the dollar</span>.</p>
+</header>
+
+<div class="container">
+  <div class="input-card">
+    <div class="input-grid">
+      <div class="input-group">
+        <label for="state">State</label>
+        <select id="state"></select>
+      </div>
+      <div class="input-group">
+        <label for="locality">Locality <span style="font-weight:400;text-transform:none;font-size:0.75rem;opacity:0.6;">(optional)</span></label>
+        <input type="text" id="locality" placeholder="City or county">
+      </div>
+      <div class="input-group full-width">
+        <label for="income">Annual Income</label>
+        <div class="income-wrapper">
+          <span class="dollar-sign">$</span>
+          <input type="text" id="income" inputmode="numeric" placeholder="75,000" autocomplete="off">
+        </div>
+      </div>
+    </div>
+    <button class="btn-show" onclick="calculate()"><span>Show Me Where It Goes <span class="btn-arrow">→</span></span></button>
+    <p class="filing-note">Single filer · Standard deduction · 2025 tax year</p>
+  </div>
+
+  <div id="results">
+    <div class="summary-bar reveal">
+      <div class="summary-item">
+        <div class="label"><span class="icon">💰</span> Gross Income</div>
+        <div class="value" id="sumIncome">—</div>
+      </div>
+      <div class="summary-item">
+        <div class="label"><span class="icon">🏛️</span> Federal Tax</div>
+        <div class="value" id="sumFederal">—</div>
+      </div>
+      <div class="summary-item">
+        <div class="label" id="sumStateLabel"><span class="icon">🗺️</span> State Tax</div>
+        <div class="value" id="sumState">—</div>
+      </div>
+      <div class="summary-item">
+        <div class="label"><span class="icon">📊</span> Effective Rate</div>
+        <div class="value" id="sumRate">—</div>
+      </div>
+    </div>
+
+    <div class="charts-grid reveal">
+      <div class="chart-card">
+        <h2 id="fedChartTitle">Your Federal Tax Receipt</h2>
+        <p class="chart-subtitle" id="fedChartSub"></p>
+        <div class="chart-wrapper">
+          <canvas id="fedChart"></canvas>
+          <div class="chart-center-label" id="fedCenterLabel">
+            <div class="center-amount" id="fedCenterAmt"></div>
+            <div class="center-label">Federal</div>
+          </div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h2 id="stateChartTitle">Your State Tax Receipt</h2>
+        <p class="chart-subtitle" id="stateChartSub"></p>
+        <div class="chart-wrapper" id="stateChartWrapper">
+          <canvas id="stateChart"></canvas>
+          <div class="chart-center-label" id="stateCenterLabel">
+            <div class="center-amount" id="stateCenterAmt"></div>
+            <div class="center-label">State</div>
+          </div>
+        </div>
+        <div class="no-tax-note" id="noStateTaxNote" style="display:none;"></div>
+      </div>
+    </div>
+
+    <div class="receipt-grid reveal">
+      <div class="receipt-card">
+        <div class="receipt-inner">
+          <div class="receipt-header">
+            <h3>🏛️ Federal Receipt</h3>
+            <div class="receipt-date">Tax Year 2025 · IRS / CBO Data</div>
+          </div>
+          <div id="fedReceipt"></div>
+          <div class="receipt-thankyou">★ Thank you, taxpayer ★</div>
+        </div>
+      </div>
+      <div class="receipt-card">
+        <div class="receipt-inner">
+          <div class="receipt-header">
+            <h3 id="stateReceiptTitle">🗺️ State Receipt</h3>
+            <div class="receipt-date">Tax Year 2025 · Census / NASBO Data</div>
+          </div>
+          <div id="stateReceipt"></div>
+          <div class="receipt-thankyou" id="stateReceiptThanks">★ Thank you, taxpayer ★</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="local-placeholder reveal">
+      <span class="coming-badge">🚧 Coming Soon</span>
+      <h3>Local Spending Breakdown</h3>
+      <p>County and city-level tax breakdowns are on the way.<br>Enter your locality above — we'll notify you when it's ready.</p>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-cta" id="footerCta" style="display:none;">
+    <p>Know what your taxes buy? Share the knowledge.</p>
+    <button class="share-btn" onclick="shareResults()">📋 Copy Link to Share</button>
+  </div>
+  <p class="fine-print">Data: IRS (2025 brackets), Tax Foundation, CBO/OMB (FY2025 est.), Census Bureau.<br>
+  Single filer, standard deduction. Informational only — not tax advice.<br>
+  Built with ❤️ · <a href="https://github.com" target="_blank">View Source</a></p>
+</footer>
+
+<script>
+// ═══════════════════════════════════════
+// FEDERAL 2025 TAX BRACKETS (Single Filer)
+// ═══════════════════════════════════════
+const FEDERAL_STANDARD_DEDUCTION = 15000;
+const FEDERAL_BRACKETS = [
+  { min: 0,      max: 11925,   rate: 0.10 },
+  { min: 11925,  max: 48475,   rate: 0.12 },
+  { min: 48475,  max: 103350,  rate: 0.22 },
+  { min: 103350, max: 197300,  rate: 0.24 },
+  { min: 197300, max: 250525,  rate: 0.32 },
+  { min: 250525, max: 626350,  rate: 0.35 },
+  { min: 626350, max: Infinity, rate: 0.37 }
+];
+
+const FEDERAL_SPENDING = [
+  { name: "Social Security",             pct: 21, color: "#6366f1" },
+  { name: "Medicare",                    pct: 14, color: "#06b6d4" },
+  { name: "Interest on Debt",            pct: 13, color: "#f43f5e" },
+  { name: "National Defense",            pct: 13, color: "#64748b" },
+  { name: "Medicaid & CHIP",             pct: 9,  color: "#10b981" },
+  { name: "Income Security",             pct: 6,  color: "#f59e0b" },
+  { name: "Veterans Benefits",           pct: 5,  color: "#8b5cf6" },
+  { name: "Education",                   pct: 4,  color: "#ec4899" },
+  { name: "Transportation",              pct: 2,  color: "#f97316" },
+  { name: "Science & Technology",        pct: 1,  color: "#14b8a6" },
+  { name: "International Affairs",       pct: 1,  color: "#a78bfa" },
+  { name: "Other",                       pct: 11, color: "#475569" }
+];
+
+const STATE_SPENDING_DEFAULT = [
+  { name: "K-12 Education",              pct: 25, color: "#6366f1" },
+  { name: "Medicaid & Health",           pct: 28, color: "#10b981" },
+  { name: "Higher Education",            pct: 10, color: "#06b6d4" },
+  { name: "Transportation",              pct: 8,  color: "#f97316" },
+  { name: "Public Safety & Corrections", pct: 7,  color: "#64748b" },
+  { name: "Public Assistance",           pct: 5,  color: "#f59e0b" },
+  { name: "Government Admin",            pct: 5,  color: "#8b5cf6" },
+  { name: "Other",                       pct: 12, color: "#475569" }
+];
+
+const STATE_TAX = {
+  "Alabama": {
+    deduction: 3000,
+    brackets: [
+      { min: 0, max: 500, rate: 0.02 },
+      { min: 500, max: 3000, rate: 0.04 },
+      { min: 3000, max: Infinity, rate: 0.05 }
+    ]
+  },
+  "Alaska": { noTax: true },
+  "Arizona": {
+    deduction: 15000,
+    brackets: [
+      { min: 0, max: Infinity, rate: 0.025 }
+    ]
+  },
+  "Arkansas": {
+    deduction: 2410,
+    brackets: [
+      { min: 0, max: 4500, rate: 0.02 },
+      { min: 4500, max: Infinity, rate: 0.039 }
+    ]
+  },
+  "California": {
+    deduction: 5540,
+    brackets: [
+      { min: 0,      max: 10756,   rate: 0.01 },
+      { min: 10756,  max: 25499,   rate: 0.02 },
+      { min: 25499,  max: 40245,   rate: 0.04 },
+      { min: 40245,  max: 55866,   rate: 0.06 },
+      { min: 55866,  max: 70606,   rate: 0.08 },
+      { min: 70606,  max: 360659,  rate: 0.093 },
+      { min: 360659, max: 432787,  rate: 0.103 },
+      { min: 432787, max: 721314,  rate: 0.113 },
+      { min: 721314, max: 1000000, rate: 0.123 },
+      { min: 1000000, max: Infinity, rate: 0.133 }
+    ]
+  },
+  "Colorado": {
+    deduction: 15000,
+    brackets: [
+      { min: 0, max: Infinity, rate: 0.044 }
+    ]
+  },
+  "Connecticut": {
+    deduction: 0,
+    exemption: 15000,
+    brackets: [
+      { min: 0,      max: 10000,  rate: 0.02 },
+      { min: 10000,  max: 50000,  rate: 0.045 },
+      { min: 50000,  max: 100000, rate: 0.055 },
+      { min: 100000, max: 200000, rate: 0.06 },
+      { min: 200000, max: 250000, rate: 0.065 },
+      { min: 250000, max: 500000, rate: 0.069 },
+      { min: 500000, max: Infinity, rate: 0.0699 }
+    ]
+  },
+  "Delaware": {
+    deduction: 3250,
+    brackets: [
+      { min: 0,     max: 2000,  rate: 0.00 },
+      { min: 2000,  max: 5000,  rate: 0.022 },
+      { min: 5000,  max: 10000, rate: 0.039 },
+      { min: 10000, max: 20000, rate: 0.048 },
+      { min: 20000, max: 25000, rate: 0.052 },
+      { min: 25000, max: 60000, rate: 0.0555 },
+      { min: 60000, max: Infinity, rate: 0.066 }
+    ]
+  },
+  "Florida": { noTax: true },
+  "Georgia": {
+    deduction: 12000,
+    brackets: [
+      { min: 0, max: Infinity, rate: 0.0539 }
+    ]
+  },
+  "Hawaii": {
+    deduction: 4400,
+    brackets: [
+      { min: 0,      max: 9600,   rate: 0.014 },
+      { min: 9600,   max: 14400,  rate: 0.032 },
+      { min: 14400,  max: 19200,  rate: 0.055 },
+      { min: 19200,  max: 24000,  rate: 0.064 },
+      { min: 24000,  max: 36000,  rate: 0.068 },
+      { min: 36000,  max: 48000,  rate: 0.072 },
+      { min: 48000,  max: 125000, rate: 0.076 },
+      { min: 125000, max: 175000, rate: 0.079 },
+      { min: 175000, max: 225000, rate: 0.0825 },
+      { min: 225000, max: 275000, rate: 0.09 },
+      { min: 275000, max: 325000, rate: 0.10 },
+      { min: 325000, max: Infinity, rate: 0.11 }
+    ]
+  },
+  "Idaho": {
+    deduction: 15000,
+    brackets: [
+      { min: 0,    max: 4673, rate: 0.00 },
+      { min: 4673, max: Infinity, rate: 0.05695 }
+    ]
+  },
+  "Illinois": {
+    deduction: 0,
+    exemption: 2850,
+    brackets: [
+      { min: 0, max: Infinity, rate: 0.0495 }
+    ]
+  },
+  "Indiana": {
+    deduction: 0,
+    exemption: 1000,
+    brackets: [
+      { min: 0, max: Infinity, rate: 0.03 }
+    ]
+  },
+  "Iowa": {
+    deduction: 0,
+    brackets: [
+      { min: 0, max: Infinity, rate: 0.038 }
+    ]
+  },
+  "Kansas": {
+    deduction: 3605,
+    exemption: 9160,
+    brackets: [
+      { min: 0,     max: 23000, rate: 0.052 },
+      { min: 23000, max: Infinity, rate: 0.0558 }
+    ]
+  },
+  "Kentucky": {
+    deduction: 3270,
+    brackets: [
+      { min: 0, max: Infinity, rate: 0.04 }
+    ]
+  },
+  "Louisiana": {
+    deduction: 12500,
+    brackets: [
+      { min: 0, max: Infinity, rate: 0.03 }
+    ]
+  },
+  "Maine": {
+    deduction: 15000,
+    exemption: 5150,
+    brackets: [
+      { min: 0,     max: 26800, rate: 0.058 },
+      { min: 26800, max: 63450, rate: 0.0675 },
+      { min: 63450, max: Infinity, rate: 0.0715 }
+    ]
+  },
+  "Maryland": {
+    deduction: 2700,
+    exemption: 3200,
+    brackets: [
+      { min: 0,      max: 1000,   rate: 0.02 },
+      { min: 1000,   max: 2000,   rate: 0.03 },
+      { min: 2000,   max: 3000,   rate: 0.04 },
+      { min: 3000,   max: 100000, rate: 0.0475 },
+      { min: 100000, max: 125000, rate: 0.05 },
+      { min: 125000, max: 150000, rate: 0.0525 },
+      { min: 150000, max: 250000, rate: 0.055 },
+      { min: 250000, max: Infinity, rate: 0.0575 }
+    ]
+  },
+  "Massachusetts": {
+    deduction: 0,
+    exemption: 4400,
+    brackets: [
+      { min: 0,       max: 1000000, rate: 0.05 },
+      { min: 1000000, max: Infinity, rate: 0.09 }
+    ]
+  },
+  "Michigan": {
+    deduction: 0,
+    exemption: 5800,
+    brackets: [
+      { min: 0, max: Infinity, rate: 0.0425 }
+    ]
+  },
+  "Minnesota": {
+    deduction: 14950,
+    brackets: [
+      { min: 0,      max: 32570,  rate: 0.0535 },
+      { min: 32570,  max: 106990, rate: 0.068 },
+      { min: 106990, max: 198630, rate: 0.0785 },
+      { min: 198630, max: Infinity, rate: 0.0985 }
+    ]
+  },
+  "Mississippi": {
+    deduction: 2300,
+    exemption: 6000,
+    brackets: [
+      { min: 0,     max: 10000, rate: 0.00 },
+      { min: 10000, max: Infinity, rate: 0.044 }
+    ]
+  },
+  "Missouri": {
+    deduction: 15000,
+    brackets: [
+      { min: 0,    max: 1313, rate: 0.00 },
+      { min: 1313, max: 2626, rate: 0.02 },
+      { min: 2626, max: 3939, rate: 0.025 },
+      { min: 3939, max: 5252, rate: 0.03 },
+      { min: 5252, max: 6565, rate: 0.035 },
+      { min: 6565, max: 7878, rate: 0.04 },
+      { min: 7878, max: 9191, rate: 0.045 },
+      { min: 9191, max: Infinity, rate: 0.047 }
+    ]
+  },
+  "Montana": {
+    deduction: 15000,
+    brackets: [
+      { min: 0,     max: 21100, rate: 0.047 },
+      { min: 21100, max: Infinity, rate: 0.059 }
+    ]
+  },
+  "Nebraska": {
+    deduction: 8600,
+    brackets: [
+      { min: 0,     max: 4030,  rate: 0.0246 },
+      { min: 4030,  max: 24120, rate: 0.0351 },
+      { min: 24120, max: 38870, rate: 0.0501 },
+      { min: 38870, max: Infinity, rate: 0.052 }
+    ]
+  },
+  "Nevada": { noTax: true },
+  "New Hampshire": { noTax: true },
+  "New Jersey": {
+    deduction: 0,
+    exemption: 1000,
+    brackets: [
+      { min: 0,       max: 20000,   rate: 0.014 },
+      { min: 20000,   max: 35000,   rate: 0.0175 },
+      { min: 35000,   max: 40000,   rate: 0.035 },
+      { min: 40000,   max: 75000,   rate: 0.05525 },
+      { min: 75000,   max: 500000,  rate: 0.0637 },
+      { min: 500000,  max: 1000000, rate: 0.0897 },
+      { min: 1000000, max: Infinity, rate: 0.1075 }
+    ]
+  },
+  "New Mexico": {
+    deduction: 15000,
+    brackets: [
+      { min: 0,      max: 5500,   rate: 0.015 },
+      { min: 5500,   max: 16500,  rate: 0.032 },
+      { min: 16500,  max: 33500,  rate: 0.043 },
+      { min: 33500,  max: 66500,  rate: 0.047 },
+      { min: 66500,  max: 210000, rate: 0.049 },
+      { min: 210000, max: Infinity, rate: 0.059 }
+    ]
+  },
+  "New York": {
+    deduction: 8000,
+    brackets: [
+      { min: 0,        max: 8500,     rate: 0.04 },
+      { min: 8500,     max: 11700,    rate: 0.045 },
+      { min: 11700,    max: 13900,    rate: 0.0525 },
+      { min: 13900,    max: 80650,    rate: 0.055 },
+      { min: 80650,    max: 215400,   rate: 0.06 },
+      { min: 215400,   max: 1077550,  rate: 0.0685 },
+      { min: 1077550,  max: 5000000,  rate: 0.0965 },
+      { min: 5000000,  max: 25000000, rate: 0.103 },
+      { min: 25000000, max: Infinity,  rate: 0.109 }
+    ]
+  },
+  "North Carolina": {
+    deduction: 12750,
+    brackets: [
+      { min: 0, max: Infinity, rate: 0.0425 }
+    ]
+  },
+  "North Dakota": {
+    deduction: 15000,
+    brackets: [
+      { min: 0,      max: 48475,  rate: 0.00 },
+      { min: 48475,  max: 244825, rate: 0.0195 },
+      { min: 244825, max: Infinity, rate: 0.025 }
+    ]
+  },
+  "Ohio": {
+    deduction: 0,
+    brackets: [
+      { min: 0,      max: 26050,  rate: 0.00 },
+      { min: 26050,  max: 100000, rate: 0.0275 },
+      { min: 100000, max: Infinity, rate: 0.035 }
+    ]
+  },
+  "Oklahoma": {
+    deduction: 6350,
+    exemption: 1000,
+    brackets: [
+      { min: 0,    max: 1000, rate: 0.0025 },
+      { min: 1000, max: 2500, rate: 0.0075 },
+      { min: 2500, max: 3750, rate: 0.0175 },
+      { min: 3750, max: 4900, rate: 0.0275 },
+      { min: 4900, max: 7200, rate: 0.0375 },
+      { min: 7200, max: Infinity, rate: 0.0475 }
+    ]
+  },
+  "Oregon": {
+    deduction: 2800,
+    brackets: [
+      { min: 0,      max: 4400,   rate: 0.0475 },
+      { min: 4400,   max: 11050,  rate: 0.0675 },
+      { min: 11050,  max: 125000, rate: 0.0875 },
+      { min: 125000, max: Infinity, rate: 0.099 }
+    ]
+  },
+  "Pennsylvania": {
+    deduction: 0,
+    brackets: [
+      { min: 0, max: Infinity, rate: 0.0307 }
+    ]
+  },
+  "Rhode Island": {
+    deduction: 10900,
+    exemption: 5100,
+    brackets: [
+      { min: 0,      max: 79900,  rate: 0.0375 },
+      { min: 79900,  max: 181650, rate: 0.0475 },
+      { min: 181650, max: Infinity, rate: 0.0599 }
+    ]
+  },
+  "South Carolina": {
+    deduction: 15000,
+    brackets: [
+      { min: 0,     max: 3560,  rate: 0.00 },
+      { min: 3560,  max: 17830, rate: 0.03 },
+      { min: 17830, max: Infinity, rate: 0.062 }
+    ]
+  },
+  "South Dakota": { noTax: true },
+  "Tennessee": { noTax: true },
+  "Texas": { noTax: true },
+  "Utah": {
+    deduction: 0,
+    brackets: [
+      { min: 0, max: Infinity, rate: 0.0455 }
+    ]
+  },
+  "Vermont": {
+    deduction: 7400,
+    exemption: 5100,
+    brackets: [
+      { min: 0,      max: 47900,  rate: 0.0335 },
+      { min: 47900,  max: 116000, rate: 0.066 },
+      { min: 116000, max: 242000, rate: 0.076 },
+      { min: 242000, max: Infinity, rate: 0.0875 }
+    ]
+  },
+  "Virginia": {
+    deduction: 8500,
+    exemption: 930,
+    brackets: [
+      { min: 0,     max: 3000,  rate: 0.02 },
+      { min: 3000,  max: 5000,  rate: 0.03 },
+      { min: 5000,  max: 17000, rate: 0.05 },
+      { min: 17000, max: Infinity, rate: 0.0575 }
+    ]
+  },
+  "Washington": { noTax: true, note: "Washington has no income tax on wages. A 7% tax on capital gains over $270,000 applies separately." },
+  "West Virginia": {
+    deduction: 0,
+    exemption: 2000,
+    brackets: [
+      { min: 0,     max: 10000, rate: 0.0222 },
+      { min: 10000, max: 25000, rate: 0.0296 },
+      { min: 25000, max: 40000, rate: 0.0333 },
+      { min: 40000, max: 60000, rate: 0.0444 },
+      { min: 60000, max: Infinity, rate: 0.0482 }
+    ]
+  },
+  "Wisconsin": {
+    deduction: 13560,
+    brackets: [
+      { min: 0,      max: 14680,  rate: 0.035 },
+      { min: 14680,  max: 29370,  rate: 0.044 },
+      { min: 29370,  max: 323290, rate: 0.053 },
+      { min: 323290, max: Infinity, rate: 0.0765 }
+    ]
+  },
+  "Wyoming": { noTax: true },
+  "District of Columbia": {
+    deduction: 15000,
+    brackets: [
+      { min: 0,       max: 10000,   rate: 0.04 },
+      { min: 10000,   max: 40000,   rate: 0.06 },
+      { min: 40000,   max: 60000,   rate: 0.065 },
+      { min: 60000,   max: 250000,  rate: 0.085 },
+      { min: 250000,  max: 500000,  rate: 0.0925 },
+      { min: 500000,  max: 1000000, rate: 0.0975 },
+      { min: 1000000, max: Infinity, rate: 0.1075 }
+    ]
+  }
+};
+
+const NO_TAX_STATES = ["Alaska","Florida","Nevada","New Hampshire","South Dakota","Tennessee","Texas","Washington","Wyoming"];
+
+// ═══ POPULATE STATE DROPDOWN ═══
+const stateSelect = document.getElementById('state');
+Object.keys(STATE_TAX).sort().forEach(s => {
+  const opt = document.createElement('option');
+  opt.value = s;
+  opt.textContent = s;
+  stateSelect.appendChild(opt);
+});
+
+// ═══ INCOME INPUT FORMATTING ═══
+const incomeInput = document.getElementById('income');
+incomeInput.addEventListener('input', function() {
+  let raw = this.value.replace(/[^0-9]/g, '');
+  if (raw.length > 12) raw = raw.slice(0, 12);
+  if (raw) this.value = Number(raw).toLocaleString('en-US');
+});
+incomeInput.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') calculate();
+});
+
+// ═══ SCROLL REVEAL ═══
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1 });
+
+// ═══ COUNT-UP ANIMATION ═══
+function animateValue(el, target, prefix = '', suffix = '', duration = 800) {
+  const start = 0;
+  const startTime = performance.now();
+  function update(currentTime) {
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const current = Math.round(start + (target - start) * eased);
+    el.textContent = prefix + current.toLocaleString('en-US') + suffix;
+    if (progress < 1) requestAnimationFrame(update);
+  }
+  requestAnimationFrame(update);
+}
+
+// ═══ TAX CALCULATION ═══
+function calcBracketTax(income, brackets) {
+  let tax = 0;
+  for (const b of brackets) {
+    if (income <= b.min) break;
+    tax += (Math.min(income, b.max) - b.min) * b.rate;
+  }
+  return Math.max(0, tax);
+}
+
+function calcFederalTax(grossIncome) {
+  return calcBracketTax(Math.max(0, grossIncome - FEDERAL_STANDARD_DEDUCTION), FEDERAL_BRACKETS);
+}
+
+function calcStateTax(grossIncome, stateName) {
+  const d = STATE_TAX[stateName];
+  if (!d || d.noTax) return 0;
+  return calcBracketTax(Math.max(0, grossIncome - (d.deduction || 0) - (d.exemption || 0)), d.brackets);
+}
+
+function fmtDollar(n) {
+  if (n >= 1) return '$' + Math.round(n).toLocaleString('en-US');
+  if (n > 0) return '$' + n.toFixed(2);
+  return '$0';
+}
+
+// ═══ CHARTS ═══
+let fedChartInstance = null;
+let stateChartInstance = null;
+
+function createPieChart(canvasId, labels, data, colors) {
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  return new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels,
+      datasets: [{
+        data,
+        backgroundColor: colors,
+        borderWidth: 0,
+        hoverBorderWidth: 2,
+        hoverBorderColor: '#fff',
+        hoverOffset: 10
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      cutout: '55%',
+      animation: { animateRotate: true, duration: 1200, easing: 'easeOutQuart' },
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            padding: 10,
+            usePointStyle: true,
+            pointStyleWidth: 8,
+            color: '#8892a4',
+            font: { family: "'Inter', sans-serif", size: 10.5 },
+            generateLabels(chart) {
+              return chart.data.labels.map((label, i) => ({
+                text: label + ' · ' + fmtDollar(chart.data.datasets[0].data[i]),
+                fillStyle: chart.data.datasets[0].backgroundColor[i],
+                strokeStyle: 'transparent',
+                lineWidth: 0,
+                pointStyle: 'rectRounded',
+                index: i,
+                hidden: false
+              }));
+            }
+          }
+        },
+        tooltip: {
+          backgroundColor: 'rgba(15,23,42,0.95)',
+          borderColor: 'rgba(255,255,255,0.1)',
+          borderWidth: 1,
+          titleColor: '#f1f5f9',
+          bodyColor: '#cbd5e1',
+          cornerRadius: 8,
+          padding: 12,
+          callbacks: {
+            label(ctx) {
+              const total = ctx.dataset.data.reduce((a,b) => a+b, 0);
+              return ctx.label + ': ' + fmtDollar(ctx.raw) + ' (' + ((ctx.raw/total)*100).toFixed(1) + '%)';
+            }
+          },
+          bodyFont: { family: "'Inter', sans-serif" },
+          titleFont: { family: "'Inter', sans-serif" }
+        }
+      }
+    }
+  });
+}
+
+// ═══ SHARE ═══
+function shareResults() {
+  navigator.clipboard.writeText(window.location.href).then(() => {
+    const btn = document.querySelector('.share-btn');
+    btn.textContent = '✓ Link Copied!';
+    setTimeout(() => { btn.innerHTML = '📋 Copy Link to Share'; }, 2000);
+  });
+}
+
+// ═══ MAIN CALCULATE ═══
+function calculate() {
+  const rawIncome = incomeInput.value.replace(/[^0-9]/g, '');
+  const income = parseInt(rawIncome, 10);
+  const stateName = stateSelect.value;
+
+  if (!rawIncome || isNaN(income) || income <= 0) {
+    incomeInput.style.borderColor = '#f43f5e';
+    incomeInput.style.boxShadow = '0 0 0 3px rgba(244,63,94,0.2)';
+    incomeInput.focus();
+    setTimeout(() => { incomeInput.style.borderColor = ''; incomeInput.style.boxShadow = ''; }, 2000);
+    return;
+  }
+
+  const fedTax = calcFederalTax(income);
+  const stateTax = calcStateTax(income, stateName);
+  const totalTax = fedTax + stateTax;
+  const effectiveRate = income > 0 ? ((totalTax / income) * 100).toFixed(1) : '0.0';
+
+  // Animate summary values
+  animateValue(document.getElementById('sumIncome'), income, '$');
+  animateValue(document.getElementById('sumFederal'), Math.round(fedTax), '$');
+  animateValue(document.getElementById('sumState'), Math.round(stateTax), '$');
+  const rateEl = document.getElementById('sumRate');
+  const rateNum = parseFloat(effectiveRate);
+  const rateStart = performance.now();
+  (function animRate(now) {
+    const p = Math.min((now - rateStart) / 800, 1);
+    const e = 1 - Math.pow(1 - p, 3);
+    rateEl.textContent = (rateNum * e).toFixed(1) + '%';
+    if (p < 1) requestAnimationFrame(animRate);
+  })(rateStart);
+
+  document.getElementById('sumStateLabel').innerHTML = '<span class="icon">🗺️</span> ' + stateName + ' Tax';
+
+  // Federal chart
+  document.getElementById('fedChartTitle').textContent = 'Your Federal Tax Receipt';
+  document.getElementById('fedChartSub').textContent = 'Your ' + fmtDollar(fedTax) + ' in federal taxes bought:';
+  document.getElementById('fedCenterAmt').textContent = fmtDollar(fedTax);
+
+  if (fedChartInstance) fedChartInstance.destroy();
+  fedChartInstance = createPieChart('fedChart',
+    FEDERAL_SPENDING.map(s => s.name),
+    FEDERAL_SPENDING.map(s => Math.round((s.pct/100)*fedTax*100)/100),
+    FEDERAL_SPENDING.map(s => s.color)
+  );
+
+  // Federal receipt
+  let fedHTML = '';
+  FEDERAL_SPENDING.forEach(s => {
+    const amt = (s.pct/100) * fedTax;
+    fedHTML += `<div class="receipt-line"><span class="cat">${s.name}</span><span class="amt">${fmtDollar(amt)}</span><span class="pct-tag">${s.pct}%</span></div>`;
+  });
+  fedHTML += `<div class="receipt-total"><span>TOTAL</span><span>${fmtDollar(fedTax)}</span></div>`;
+  document.getElementById('fedReceipt').innerHTML = fedHTML;
+
+  // State chart
+  const isNoTax = NO_TAX_STATES.includes(stateName) || (STATE_TAX[stateName] && STATE_TAX[stateName].noTax);
+  const stateChartWrapper = document.getElementById('stateChartWrapper');
+  const noStateTaxNote = document.getElementById('noStateTaxNote');
+  const stateCenterLabel = document.getElementById('stateCenterLabel');
+
+  document.getElementById('stateChartTitle').textContent = 'Your ' + stateName + ' Tax Receipt';
+  document.getElementById('stateReceiptTitle').textContent = '🗺️ ' + stateName.toUpperCase() + ' RECEIPT';
+
+  if (stateChartInstance) stateChartInstance.destroy();
+
+  if (isNoTax) {
+    stateChartWrapper.style.display = 'none';
+    stateCenterLabel.style.display = 'none';
+    noStateTaxNote.style.display = 'block';
+    const noteText = (STATE_TAX[stateName] && STATE_TAX[stateName].note) ? STATE_TAX[stateName].note : stateName + ' has no state income tax.';
+    noStateTaxNote.innerHTML = `<strong style="color:var(--emerald);">$0 in state income tax</strong><br><span style="font-size:0.85rem;">${noteText}</span>`;
+    document.getElementById('stateChartSub').textContent = '';
+    document.getElementById('stateReceipt').innerHTML = `<div style="padding:20px;text-align:center;color:#888;font-style:italic;">${stateName} has no state income tax — nothing to break down here! 🎉</div>`;
+    document.getElementById('stateReceiptThanks').style.display = 'none';
+  } else {
+    stateChartWrapper.style.display = 'block';
+    stateCenterLabel.style.display = 'block';
+    noStateTaxNote.style.display = 'none';
+    document.getElementById('stateReceiptThanks').style.display = '';
+    document.getElementById('stateChartSub').textContent = 'Your ' + fmtDollar(stateTax) + ' in ' + stateName + ' taxes bought:';
+    document.getElementById('stateCenterAmt').textContent = fmtDollar(stateTax);
+
+    stateChartInstance = createPieChart('stateChart',
+      STATE_SPENDING_DEFAULT.map(s => s.name),
+      STATE_SPENDING_DEFAULT.map(s => Math.round((s.pct/100)*stateTax*100)/100),
+      STATE_SPENDING_DEFAULT.map(s => s.color)
+    );
+
+    let stateHTML = '';
+    STATE_SPENDING_DEFAULT.forEach(s => {
+      const amt = (s.pct/100) * stateTax;
+      stateHTML += `<div class="receipt-line"><span class="cat">${s.name}</span><span class="amt">${fmtDollar(amt)}</span><span class="pct-tag">${s.pct}%</span></div>`;
+    });
+    stateHTML += `<div class="receipt-total"><span>TOTAL</span><span>${fmtDollar(stateTax)}</span></div>`;
+    stateHTML += `<p style="font-size:0.7rem;color:#999;margin-top:12px;text-align:center;font-style:italic;">Based on national averages for state spending categories.</p>`;
+    document.getElementById('stateReceipt').innerHTML = stateHTML;
+  }
+
+  // Show results & setup reveals
+  const results = document.getElementById('results');
+  results.style.display = 'block';
+  document.getElementById('footerCta').style.display = 'block';
+
+  document.querySelectorAll('.reveal').forEach(el => {
+    el.classList.remove('visible');
+    revealObserver.observe(el);
+  });
+
+  // Trigger immediate check
+  setTimeout(() => {
+    document.querySelectorAll('.reveal').forEach(el => {
+      const rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight) el.classList.add('visible');
+    });
+  }, 50);
+
+  results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+</script>
+</body>
+</html>
