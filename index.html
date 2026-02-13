@@ -1534,7 +1534,7 @@ function calculate() {
   const isNoTax = NO_TAX_STATES.includes(stateName) || (STATE_TAX[stateName] && STATE_TAX[stateName].noTax);
   const stateChartWrapper = document.getElementById('stateChartWrapper');
   const noStateTaxNote = document.getElementById('noStateTaxNote');
-  const stateCenterLabel = document.getElementById('stateCenterLabel');
+  
 
   document.getElementById('stateChartTitle').textContent = 'Your ' + stateName + ' Tax Receipt';
   document.getElementById('stateReceiptTitle').textContent = '🗺️ ' + stateName.toUpperCase() + ' RECEIPT';
@@ -1543,7 +1543,7 @@ function calculate() {
 
   if (isNoTax) {
     stateChartWrapper.style.display = 'none';
-    stateCenterLabel.style.display = 'none';
+    
     noStateTaxNote.style.display = 'block';
     const noteText = (STATE_TAX[stateName] && STATE_TAX[stateName].note) ? STATE_TAX[stateName].note : stateName + ' has no state income tax.';
     noStateTaxNote.innerHTML = `<strong style="color:var(--emerald);">$0 in state income tax</strong><br><span style="font-size:0.85rem;">${noteText}</span>`;
@@ -1552,7 +1552,7 @@ function calculate() {
     document.getElementById('stateReceiptThanks').style.display = 'none';
   } else {
     stateChartWrapper.style.display = 'block';
-    stateCenterLabel.style.display = 'block';
+    
     noStateTaxNote.style.display = 'none';
     document.getElementById('stateReceiptThanks').style.display = '';
     document.getElementById('stateChartSub').textContent = 'Your ' + fmtDollar(stateTax) + ' in ' + stateName + ' taxes bought:';
