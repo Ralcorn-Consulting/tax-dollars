@@ -1416,11 +1416,12 @@ function createPieChart(canvasId, labels, data, colors) {
       plugins: {
         legend: {
           position: 'bottom',
+          align: 'start',
           labels: {
             padding: 10,
             usePointStyle: true,
             pointStyleWidth: 8,
-            color: '#8892a4',
+            color: '#f1f5f9',
             font: { family: "'Inter', sans-serif", size: 10.5 },
             generateLabels(chart) {
               return chart.data.labels.map((label, i) => ({
