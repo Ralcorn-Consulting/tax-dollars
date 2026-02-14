@@ -189,12 +189,6 @@ header p {
   margin-bottom: 28px;
 }
 
-.input-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
 .input-group {
   display: flex;
   flex-direction: column;
@@ -1310,15 +1304,9 @@ footer a:hover {
           <input type="text" id="income" inputmode="numeric" value="75,000" autocomplete="off" placeholder="75,000">
         </div>
       </div>
-      <div class="input-row">
-        <div class="input-group">
-          <label for="state">State</label>
-          <select id="state"></select>
-        </div>
-        <div class="input-group">
-          <label for="locality">Locality <span style="font-weight:400;text-transform:none;font-size:0.7rem;opacity:0.5;">(optional)</span></label>
-          <input type="text" id="locality" placeholder="City or county">
-        </div>
+      <div class="input-group">
+        <label for="state">State</label>
+        <select id="state"></select>
       </div>
     </div>
     <button class="btn-show" onclick="calculate()"><span>Show Me Where It Goes <span class="btn-arrow">→</span></span></button>
@@ -1496,11 +1484,7 @@ footer a:hover {
       </div>
     </div>
 
-    <div class="local-placeholder reveal">
-      <span class="coming-badge">🚧 Coming Soon</span>
-      <h3>Local Spending Breakdown</h3>
-      <p>County and city-level tax breakdowns are on the way.<br>Enter your locality above — we'll notify you when it's ready.</p>
-    </div>
+<!-- locality breakdown coming later -->
   </div>
 </div>
 
@@ -2599,6 +2583,7 @@ Object.keys(STATE_TAX).sort().forEach(s => {
   const opt = document.createElement('option');
   opt.value = s;
   opt.textContent = s;
+  if (s === 'Virginia') opt.selected = true;
   stateSelect.appendChild(opt);
 });
 
