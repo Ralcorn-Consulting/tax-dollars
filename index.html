@@ -849,6 +849,151 @@ header p {
   .rankings-grid { grid-template-columns: 1fr; }
 }
 
+/* ═══ TOTAL BUDGET BREAKDOWN ═══ */
+.budget-breakdown-section {
+  margin-bottom: 40px;
+}
+
+.budget-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 24px 28px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.3s ease;
+  color: var(--text);
+}
+
+.budget-toggle-btn:hover {
+  background: var(--card-hover);
+  border-color: var(--accent);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-lg);
+}
+
+.budget-toggle-left {
+  text-align: left;
+}
+
+.budget-toggle-hint {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.budget-toggle-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.budget-toggle-arrow {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--accent);
+  transition: transform 0.3s;
+}
+
+.budget-toggle-btn.open .budget-toggle-arrow {
+  transform: rotate(90deg);
+}
+
+.budget-collapse {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.budget-collapse.open {
+  max-height: 6000px;
+}
+
+.budget-collapse-inner {
+  padding-top: 24px;
+}
+
+.budget-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 32px;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+}
+
+.budget-card:hover {
+  background: var(--card-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+}
+
+.budget-card h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.budget-card .budget-total-line {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+  font-weight: 300;
+}
+
+.budget-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  font-size: 0.85rem;
+}
+
+.budget-bar-label {
+  width: 180px;
+  flex-shrink: 0;
+  color: var(--text-secondary);
+  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.budget-bar-track {
+  flex: 1;
+  height: 22px;
+  background: var(--bg-subtle);
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+}
+
+.budget-bar-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  min-width: 2px;
+}
+
+.budget-bar-amount {
+  width: 80px;
+  flex-shrink: 0;
+  text-align: right;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  font-size: 0.82rem;
+}
+
+@media (max-width: 700px) {
+  .budget-bar-label { width: 120px; font-size: 0.78rem; }
+  .budget-bar-amount { width: 60px; font-size: 0.75rem; }
+  .budget-card { padding: 20px; }
+}
+
 /* ═══ LOCAL PLACEHOLDER ═══ */
 .local-placeholder {
   background: var(--card);
@@ -1121,6 +1266,32 @@ footer a:hover {
           <p class="chart-subtitle">Medicaid & Health %</p>
           <div class="rank-value" id="rankHealthValue"></div>
           <div class="rank-bar-container" id="rankHealthBar"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TOTAL BUDGET BREAKDOWN ═══ -->
+    <div class="budget-breakdown-section reveal" id="budgetBreakdownSection" style="display:none;">
+      <div class="section-label">FULL PICTURE</div>
+      <button class="budget-toggle-btn" id="budgetToggleBtn" onclick="toggleBudgetBreakdown()">
+        <div class="budget-toggle-left">
+          <div class="budget-toggle-hint">💡 Curious about the full picture?</div>
+          <div class="budget-toggle-title">Total Budget Breakdown</div>
+        </div>
+        <span class="budget-toggle-arrow">→</span>
+      </button>
+      <div class="budget-collapse" id="budgetCollapse">
+        <div class="budget-collapse-inner">
+          <div class="budget-card">
+            <h3>🏛️ Federal Budget (FY2025)</h3>
+            <div class="budget-total-line" id="fedBudgetTotal"></div>
+            <div id="fedBudgetBars"></div>
+          </div>
+          <div class="budget-card">
+            <h3 id="stateBudgetTitle">🗺️ State Budget</h3>
+            <div class="budget-total-line" id="stateBudgetTotal"></div>
+            <div id="stateBudgetBars"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -1755,6 +1926,75 @@ const STATE_SOURCES = {
   "Wyoming": { name: "Wyoming Budget Division", url: "https://ai.wyo.gov/budget-division" },
   "_default": { name: "U.S. Census Bureau", url: "https://www.census.gov/programs-surveys/state.html" }
 };
+
+// ═══ STATE BUDGET TOTALS (FY2023 Census estimates, in billions) ═══
+const FEDERAL_BUDGET_TOTAL = 6750; // $6.75 trillion in billions
+const STATE_BUDGET_TOTALS = {
+  "Alabama": 55, "Alaska": 16, "Arizona": 75, "Arkansas": 35, "California": 560,
+  "Colorado": 65, "Connecticut": 55, "Delaware": 14, "District of Columbia": 20,
+  "Florida": 215, "Georgia": 115, "Hawaii": 22, "Idaho": 18, "Illinois": 165,
+  "Indiana": 70, "Iowa": 40, "Kansas": 30, "Kentucky": 50, "Louisiana": 60,
+  "Maine": 18, "Maryland": 95, "Massachusetts": 110, "Michigan": 105, "Minnesota": 85,
+  "Mississippi": 35, "Missouri": 60, "Montana": 14, "Nebraska": 20, "Nevada": 30,
+  "New Hampshire": 15, "New Jersey": 120, "New Mexico": 30, "New York": 360,
+  "North Carolina": 110, "North Dakota": 12, "Ohio": 160, "Oklahoma": 40,
+  "Oregon": 65, "Pennsylvania": 175, "Rhode Island": 16, "South Carolina": 55,
+  "South Dakota": 10, "Tennessee": 65, "Texas": 290, "Utah": 40, "Vermont": 10,
+  "Virginia": 115, "Washington": 115, "West Virginia": 20, "Wisconsin": 70, "Wyoming": 8
+};
+
+function formatBudget(amountInBillions) {
+  if (amountInBillions >= 1000) return '$' + (amountInBillions / 1000).toFixed(2).replace(/\.?0+$/, '') + 'T';
+  if (amountInBillions >= 1) return '$' + amountInBillions.toFixed(1).replace(/\.0$/, '') + 'B';
+  return '$' + Math.round(amountInBillions * 1000) + 'M';
+}
+
+function toggleBudgetBreakdown() {
+  const btn = document.getElementById('budgetToggleBtn');
+  const collapse = document.getElementById('budgetCollapse');
+  btn.classList.toggle('open');
+  collapse.classList.toggle('open');
+}
+
+function updateBudgetBreakdown(stateName) {
+  // Federal
+  document.getElementById('fedBudgetTotal').textContent = 'Total: ~$6.75 Trillion (CBO FY2025 Estimate)';
+  let fedHTML = '';
+  const fedMax = Math.max(...FEDERAL_SPENDING.map(s => s.pct));
+  FEDERAL_SPENDING.forEach(s => {
+    const amt = (s.pct / 100) * FEDERAL_BUDGET_TOTAL;
+    const widthPct = (s.pct / fedMax) * 100;
+    fedHTML += `<div class="budget-bar-row">
+      <span class="budget-bar-label">${s.name}</span>
+      <div class="budget-bar-track"><div class="budget-bar-fill" style="width:${widthPct}%;background:${s.color};"></div></div>
+      <span class="budget-bar-amount">${formatBudget(amt)}</span>
+    </div>`;
+  });
+  document.getElementById('fedBudgetBars').innerHTML = fedHTML;
+
+  // State
+  const stateTotal = STATE_BUDGET_TOTALS[stateName];
+  document.getElementById('stateBudgetTitle').textContent = '🗺️ ' + stateName + ' Budget';
+  if (!stateTotal) {
+    document.getElementById('stateBudgetTotal').textContent = 'Budget data not available for ' + stateName;
+    document.getElementById('stateBudgetBars').innerHTML = '';
+    return;
+  }
+  document.getElementById('stateBudgetTotal').textContent = 'Total: ~' + formatBudget(stateTotal) + ' (FY2023 Census Estimate)';
+  const stateSpending = STATE_SPENDING[stateName] || STATE_SPENDING_DEFAULT;
+  const stateMax = Math.max(...stateSpending.map(s => s.pct));
+  let stateHTML = '';
+  stateSpending.forEach(s => {
+    const amt = (s.pct / 100) * stateTotal;
+    const widthPct = (s.pct / stateMax) * 100;
+    stateHTML += `<div class="budget-bar-row">
+      <span class="budget-bar-label">${s.name}</span>
+      <div class="budget-bar-track"><div class="budget-bar-fill" style="width:${widthPct}%;background:${s.color};"></div></div>
+      <span class="budget-bar-amount">${formatBudget(amt)}</span>
+    </div>`;
+  });
+  document.getElementById('stateBudgetBars').innerHTML = stateHTML;
+}
 
 const STATE_TAX = {
   "Alabama": {
@@ -2453,6 +2693,10 @@ function calculate() {
   document.getElementById('comparisonSection').style.display = '';
   document.getElementById('nationalSection').style.display = '';
   document.getElementById('rankingsSection').style.display = '';
+
+  // Budget breakdown
+  document.getElementById('budgetBreakdownSection').style.display = '';
+  updateBudgetBreakdown(stateName);
 }
 
 // ═══ POPULATE COMPARE DROPDOWNS ═══
