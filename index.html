@@ -107,6 +107,29 @@ header {
   z-index: 1;
   text-align: center;
   padding: 72px 20px 48px;
+  overflow: hidden;
+}
+
+.header-emoji-bg {
+  position: absolute;
+  inset: 0;
+  font-size: 2rem;
+  line-height: 2.4rem;
+  letter-spacing: 0.3rem;
+  word-spacing: 0.5rem;
+  opacity: 0.06;
+  pointer-events: none;
+  user-select: none;
+  overflow: hidden;
+  word-break: break-all;
+  z-index: 0;
+  mask-image: radial-gradient(ellipse 70% 70% at 50% 40%, black 20%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 40%, black 20%, transparent 70%);
+}
+
+.header-badge, header h1, header p {
+  position: relative;
+  z-index: 1;
 }
 
 .header-badge {
@@ -1289,6 +1312,7 @@ footer a:hover {
 <div class="bg-grid"></div>
 
 <header>
+  <div class="header-emoji-bg" aria-hidden="true">🏛️💰📊🗽🦅💵🏦🗺️🏛️💰📊🗽🦅💵🏦🗺️🏛️💰📊🗽🦅💵🏦🗺️🏛️💰📊🗽🦅💵🏦🗺️🏛️💰📊🗽🦅💵🏦🗺️🏛️💰📊🗽🦅💵🏦🗺️🏛️💰📊🗽🦅💵🏦🗺️🏛️💰📊🗽🦅💵🏦🗺️🏛️💰📊🗽🦅💵🏦🗺️🏛️💰📊🗽🦅💵🏦🗺️🏛️💰📊🗽🦅💵🏦🗺️🏛️💰📊🗽🦅💵🏦🗺️</div>
   <div class="header-badge">📊 2025 Tax Year · Updated Data</div>
   <h1>Where Are My Tax<br>Dollars Going?</h1>
   <p>See exactly how your federal and state income taxes are spent — <span class="tagline-highlight">down to the dollar</span>.</p>
